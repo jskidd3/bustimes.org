@@ -16,6 +16,7 @@ from django.contrib.gis.db.models.functions import Distance
 from django.core.cache import cache
 from django.core.mail import EmailMessage
 from departures import live
+from journeyplanner import journeyplanner
 from .utils import format_gbp, viglink, timetable_from_service, get_files_from_zipfile
 from .models import (Region, StopPoint, AdminArea, Locality, District,
                      Operator, Service, Note, Journey, ServiceDate)
@@ -538,3 +539,14 @@ def service_xml(_, pk):
     else:
         bodies = (xml_file.read().decode() for xml_file in get_files_from_zipfile(service))
     return HttpResponse(bodies, content_type='text/plain')
+
+
+def journey(request):
+    origin = Locality.objects.filter(name__iexact=request.GET.get('from')).first()
+    destination = Locality.objects.filter(name__iexact=request.GET.get('to')).first()
+
+    return render(request, 'journey.html', {
+        'from': origin,
+        'to': destination,
+        'plan': journeyplanner.journey(origin, destination)
+    })
