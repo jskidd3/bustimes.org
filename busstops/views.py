@@ -586,7 +586,7 @@ class ServiceDetailView(DetailView):
 
 def service_geometry(request, pk):
     service = get_object_or_404(Service, pk=pk)
-    return HttpResponse('window.geometry = {};'.format(service.geometry.simplify().json),
+    return HttpResponse('window.geometry = {};'.format(service.geometry.merged.simplify(0.0001).json),
                         content_type='application/javascript')
 
 
